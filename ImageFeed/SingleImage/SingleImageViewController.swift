@@ -4,7 +4,7 @@
 //
 //  Created by Никита Гончаров on 11.11.2023.
 //
-import Foundation
+
 import UIKit
 
 final class SingleImageViewController: UIViewController {
@@ -18,7 +18,7 @@ final class SingleImageViewController: UIViewController {
     
     @IBOutlet weak var scrollView: UIScrollView!
     
-    @IBOutlet var imageView: UIImageView!
+    @IBOutlet weak var imageView: UIImageView!
     
     @IBAction private func didTapBackButton(_ sender: Any) {
         dismiss(animated: true, completion: nil)
