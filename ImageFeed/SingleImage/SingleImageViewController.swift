@@ -11,13 +11,19 @@ import Kingfisher
 final class SingleImageViewController: UIViewController {
     var image: UIImage! {
         didSet {
+            guard let image = image else { return }
             guard isViewLoaded else { return } // 1
             imageView.image = image // 2
             rescaleAndCenterImageInScrollView(image: image)
         }
     }
     
-    var fullImageUrl: String?
+    var fullImageURL: URL! {
+        didSet {
+            guard isViewLoaded else { return }
+            loadFullImage()
+        }
+    }
     
     // MARK: - IBOutlet
 
@@ -31,31 +37,21 @@ final class SingleImageViewController: UIViewController {
     }
     
     @IBAction func didTapShareButton(_ sender: Any) {
-        let shareButton = UIActivityViewController(activityItems: [image!], applicationActivities: [])
+        guard let image = image else { return }
+        let shareButton = UIActivityViewController(activityItems: [image], applicationActivities: [])
         present(shareButton, animated: true, completion: nil)
     }
     // MARK: - UIViewController
     
+    private var alertPresenter: AlertPresenterProtocol?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        if let imageUrl = fullImageUrl, let url = URL(string: imageUrl) {
-            UIBlockingProgressHUD.show()
-            imageView.kf.setImage(with: url) { [weak self] result in
-                UIBlockingProgressHUD.dismiss()
-                
-                guard let self = self else { return }
-                switch result {
-                case .success(let imageResult):
-                    self.image = imageResult.image
-                case .failure:
-                    self.showError()
-                }
-            }
-        }
-        
+        loadFullImage()
+        alertPresenter = AlertPresenter(delegate: self)
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
+        
     }
     
     private func rescaleAndCenterImageInScrollView(image: UIImage) {
@@ -90,9 +86,8 @@ final class SingleImageViewController: UIViewController {
     }
     
     private func loadFullImage() {
-        if let imageUrl = fullImageUrl, let url = URL(string: imageUrl) {
             UIBlockingProgressHUD.show()
-            imageView.kf.setImage(with: url) { [weak self] result in
+            imageView.kf.setImage(with: fullImageURL) { [weak self] result in
                 UIBlockingProgressHUD.dismiss()
                 
                 guard let self = self else { return }
@@ -105,10 +100,10 @@ final class SingleImageViewController: UIViewController {
             }
         }
     }
-}
 
 extension SingleImageViewController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
        return imageView
     }
 }
+

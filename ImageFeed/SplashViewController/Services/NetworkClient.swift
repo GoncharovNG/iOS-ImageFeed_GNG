@@ -5,7 +5,7 @@
 //  Created by Никита Гончаров on 16.11.2023.
 //
 
-import Foundation
+import UIKit
 
 protocol NetworkRouting {
     func fetch(url: URL, handler: @escaping (Result<Data, Error>) -> Void)
