@@ -12,22 +12,21 @@ final class ProfileImageService {
     
     static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
     static let shared = ProfileImageService()
-    
     private (set) var avatar: UIImageView = UIImageView()
     
     func fetchProfileImageURL(username: String, _ completion: @escaping (Result<String, Error>) -> Void) {
         let url = URL(string: "https://api.unsplash.com/users/\(username)?client_id=\(accessKey)")!
-        
         var request = URLRequest(url: url)
         request.setValue("Bearer \(OAuth2TokenStorage().token ?? "")", forHTTPHeaderField: "Authorization")
         let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in
+            guard let self =  self else { return }
             DispatchQueue.main.async {
                 switch result {
                 case .success(let userResult):
                     let avatarURLPath = userResult.profileImage.large.absoluteString
                     let avatarURL = URL(string: avatarURLPath)!
-                    self?.avatar.kf.indicatorType = .activity
-                    self?.avatar.kf.setImage(with: avatarURL,
+                    self.avatar.kf.indicatorType = .activity
+                    self.avatar.kf.setImage(with: avatarURL,
                                             placeholder: UIImage(named: "placeholder"),
                                             options: [.processor(RoundCornerImageProcessor(radius: Radius.heightFraction(0.5))),
                                                       .scaleFactor(UIScreen.main.scale),

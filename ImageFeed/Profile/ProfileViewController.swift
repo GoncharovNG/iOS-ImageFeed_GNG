@@ -28,7 +28,6 @@ final class ProfileViewController: UIViewController {
             nickname.text = profile.loginName
             profileDescription.text = profile.bio
         }
-        
         profileImageServiceObserver = NotificationCenter.default
             .addObserver(
                 forName: ProfileImageService.didChangeNotification,
@@ -64,13 +63,14 @@ final class ProfileViewController: UIViewController {
     
     @objc func profileLogout() {
         let alert = UIAlertController(title: "Пока, пока!", message: "Уверены, что хотите выйти?", preferredStyle: .alert)
-        
+        alert.view.accessibilityIdentifier = "bye_bye"
         let yesAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
             guard let self = self else { return }
             KeychainWrapper.standard.removeAllKeys()
             self.peel()
             self.switchToSplashViewController()
         }
+        yesAction.accessibilityIdentifier = "logout_yes"
         
         let noAction = UIAlertAction(title: "Нет", style: .cancel)
         
@@ -138,12 +138,13 @@ final class ProfileViewController: UIViewController {
         return profileDescription
     }
     
-    private func logoutButton() -> UIButton {
+    func logoutButton() -> UIButton {
         let logoutButton = UIButton()
         view.addSubview(logoutButton)
-        logoutButton.setImage(UIImage(named: "logout button"), for: .normal)
+        logoutButton.setImage(UIImage(named: "logout_button"), for: .normal)
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
         logoutButton.addTarget(self, action: #selector(profileLogout), for: .touchUpInside)
+        logoutButton.accessibilityIdentifier = "logout_button"
         
         return logoutButton
     }
