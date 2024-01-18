@@ -2,7 +2,7 @@
 //  ProfileModel.swift
 //  ImageFeed
 //
-//  Created by Никита Гончаров on 27.11.2023.
+//  Created by Никита Гончаров on 18.01.2024.
 //
 
 import UIKit

@@ -5,14 +5,14 @@
 //  Created by Никита Гончаров on 16.11.2023.
 //
 
-import Foundation
+import UIKit
 
 class OAuth2Service {
     
     static let shared = OAuth2Service()
     private var task: URLSessionTask?
     private var lastCode: String?
-    private var currentTask: URLSessionTask?
+    private let urlSession = URLSession.shared
     
     private (set) var authToken: String? {
         get {
@@ -29,35 +29,34 @@ class OAuth2Service {
     ) {
         assert(Thread.isMainThread)
         if lastCode == code { return }
-        currentTask?.cancel()
+        task?.cancel()
         lastCode = code
         
         guard let request = authTokenRequest(code: code) else { return }
-        let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
             guard let self = self else { return }
-            DispatchQueue.main.async {
                 switch result {
-                case .success(let response):
-                    completion(.success(response.accessToken))
+                case .success(let body):
+                    let authToken = body.accessToken
+                    self.authToken = authToken
+                    completion(.success(authToken))
+                    self.task = nil
                 case .failure(let error):
                     completion(.failure(error))
-                    self.lastCode = nil
                 }
-                self.currentTask = nil
             }
+            self.task = task
+            task.resume()
         }
-        currentTask = task
-        task.resume()
     }
-}
 
     private extension OAuth2Service {
         func authTokenRequest(code: String) -> URLRequest? {
             URLRequest.makeHTTPRequest(
                 path: "/oauth/token"
-                + "?client_id=\(stackAccessKey)"
-                + "&&client_secret=\(stackSecretKey)"
-                + "&&redirect_uri=\(stackRedirectURI)"
+                + "?client_id=\(AccessKey)"
+                + "&&client_secret=\(SecretKey)"
+                + "&&redirect_uri=\(RedirectURI)"
                 + "&&code=\(code)"
                 + "&&grant_type=authorization_code",
                 httpMethod: "POST",

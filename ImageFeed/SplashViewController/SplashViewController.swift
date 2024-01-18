@@ -20,63 +20,41 @@ class SplashViewController: UIViewController {
     private let authViewControllerID = "AuthViewController"
     private let tabBarViewControllerID = "TabBarViewController"
     
-    private let splashScreenLogoImageView: UIImageView = {
-        let viewImageLogoScreenSplash = UIImageView()
-        viewImageLogoScreenSplash.image = UIImage(named: "logo_of_unsplash")
-        viewImageLogoScreenSplash.translatesAutoresizingMaskIntoConstraints = false
+    private let splashScreenLogo: UIImageView = {
+        let logoScreenSplash = UIImageView()
+        logoScreenSplash.image = UIImage(named: "logo_of_unsplash")
+        logoScreenSplash.translatesAutoresizingMaskIntoConstraints = false
         
-        return viewImageLogoScreenSplash
+        return logoScreenSplash
     }()
     // MARK: - UIViewController
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if oauth2TokenStorage.token != nil {
+            guard let token = oauth2TokenStorage.token else { return }
+            fetchProfile(token: token)
+        } else {
+            switchToAuthViewController()
+        }
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         alertPresenter = AlertPresenter(delegate: self)
-        view.addSubview(splashScreenLogoImageView)
+        view.addSubview(splashScreenLogo)
         splashScreenLogoImageViewSetup()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        let splashScreenLogo = splashScreenLogo()
-        NSLayoutConstraint.activate([
-            splashScreenLogo.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            splashScreenLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        ])
-        
-        if let token = OAuth2TokenStorage().token {
-            self.profileService.fetchProfile(token)
-            self.profileImageService.fetchProfileImageURL(username: profileService.getProfile()?.username ?? "") { [weak self] result in
-                guard let self = self else { return }
-                switch result {
-                case .failure(_):
-                    DispatchQueue.main.async {
-                        self.showAlert()
-                    }
-                case .success(_):
-                    DispatchQueue.main.async {
-                        self.switchToTabBarController()
-                    }
-                }
-            }
-        } else {
-            guard let authViewController = UIStoryboard(name: "Main", bundle: .main)
-                .instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController else { fatalError("Invalid Configuration") }
-            authViewController.delegate = self
-            authViewController.modalPresentationStyle = .fullScreen
-            present(authViewController, animated: true)
-        }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        view.backgroundColor = UIColor(red: 0.102, green: 0.106, blue: 0.133, alpha: 1)
+        setNeedsStatusBarAppearanceUpdate()
     }
     
-    private func switchToTabBarController() {
-        let tabBarController = UIStoryboard(name: "Main", bundle: .main)
-            .instantiateViewController(withIdentifier: "TabBarViewController")
-        guard let window = UIApplication.shared.windows.first else { fatalError("Invalid Configuration") }
-        window.rootViewController = tabBarController
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        .lightContent
     }
 }
-
 
 // MARK: - AuthViewControllerDelegate
 
@@ -129,10 +107,10 @@ extension SplashViewController {
     
     func splashScreenLogoImageViewSetup() {
         NSLayoutConstraint.activate([
-            splashScreenLogo().heightAnchor.constraint(equalToConstant: 77),
-            splashScreenLogo().widthAnchor.constraint(equalToConstant: 74),
-            splashScreenLogo().centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            splashScreenLogo().centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            splashScreenLogo.heightAnchor.constraint(equalToConstant: 77),
+            splashScreenLogo.widthAnchor.constraint(equalToConstant: 74),
+            splashScreenLogo.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            splashScreenLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
     
@@ -163,17 +141,9 @@ extension SplashViewController {
                 }
                 oauth2TokenStorage.token = nil
                 profileService.cleanCookies()
-                profileService.peel()
+                profileService.clean()
             })
         switchToAuthViewController()
         alertPresenter?.showError(for: alert)
-    }
-    
-    func splashScreenLogo() -> UIImageView {
-        let splashScreenLogo = UIImageView(image: UIImage(named: "splash_screen_logo"))
-        view.addSubview(splashScreenLogo)
-        splashScreenLogo.translatesAutoresizingMaskIntoConstraints = false
-        
-        return splashScreenLogo
     }
 }

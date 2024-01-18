@@ -137,7 +137,7 @@ extension WebViewViewController {
                 guard let self = self else { return }
                 dismiss(animated: true)
             })
-        alertPresenter = AlertPresenter(delegate: self)
         alertPresenter?.showError(for: alert)
     }
 }
+

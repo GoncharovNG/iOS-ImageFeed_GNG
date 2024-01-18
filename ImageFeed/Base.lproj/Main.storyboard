@@ -15,10 +15,10 @@
         </array>
     </customFonts>
     <scenes>
-        <!--ImagesListCell-->
+        <!--IImagesListCell-->
         <scene sceneID="joB-wZ-0hx">
             <objects>
-                <viewController storyboardIdentifier="ImagesListViewController" title="ImagesListCell" id="cdn-Ce-osw" customClass="ImagesListViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ImagesListViewController" title="IImagesListCell" id="cdn-Ce-osw" customClass="ImagesListViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Uun-dh-KXu">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -34,7 +34,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="393" height="224"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="fbn-Nq-gBJ" userLabel="Cell Image">
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="fbn-Nq-gBJ">
                                                     <rect key="frame" x="16" y="4" width="361" height="216"/>
                                                     <userDefinedRuntimeAttributes>
                                                         <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -135,24 +135,29 @@
                                     <outlet property="delegate" destination="Rcd-3Y-KxL" id="dWc-ix-NJR"/>
                                 </connections>
                             </scrollView>
-                            <button opaque="NO" contentMode="scaleToFill" restorationIdentifier="nav_back_button" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xVd-Jb-EaK" userLabel="nav_back_button">
+                            <button opaque="NO" contentMode="scaleToFill" restorationIdentifier="nav_back_button_whith" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xVd-Jb-EaK" userLabel="nav_back_button_whith">
                                 <rect key="frame" x="8" y="8" width="48" height="48"/>
+                                <accessibility key="accessibilityConfiguration" identifier="nav_back_button_white"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="48" id="ruh-10-2vZ"/>
                                     <constraint firstAttribute="height" constant="48" id="tSH-2o-Jw9"/>
                                 </constraints>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" image="nav_back_button_white"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="nav_back_button_white"/>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <action selector="didTapBackButton:" destination="Rcd-3Y-KxL" eventType="touchUpInside" id="vev-Lu-auj"/>
+                                    <action selector="didTapBackButton" destination="Rcd-3Y-KxL" eventType="touchUpInside" id="65Z-iu-jmp"/>
+                                    <action selector="didTapShareButton:" destination="Rcd-3Y-KxL" eventType="touchUpInside" id="bkM-ir-HPF"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VtK-ne-jp8">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VtK-ne-jp8" userLabel="Sharing_button">
                                 <rect key="frame" x="171.66666666666666" y="751" width="50" height="50"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" image="sharing_button"/>
                                 <connections>
-                                    <action selector="didTapShareButton:" destination="Rcd-3Y-KxL" eventType="touchUpInside" id="yMI-kG-8EL"/>
+                                    <action selector="didTapShareButton:" destination="Rcd-3Y-KxL" eventType="touchUpInside" id="yvW-df-V9L"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -177,7 +182,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="P9f-Mz-pOV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="708" y="-1527"/>
+            <point key="canvasLocation" x="707.63358778625957" y="-1527.4647887323945"/>
         </scene>
         <!--AuthViewController-->
         <scene sceneID="zpP-Iy-Qdd">
@@ -193,11 +198,11 @@
                             <button opaque="NO" contentMode="scaleToFill" restorationIdentifier="Authenticate" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="N1N-6W-Sfm" userLabel="Enter Button">
                                 <rect key="frame" x="16" y="667" width="361" height="48"/>
                                 <color key="backgroundColor" name="YP White (IOS)"/>
+                                <accessibility key="accessibilityConfiguration" identifier="Authenticate"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="Bnt-xG-Pdw"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                                <color key="tintColor" name="YP Black (IOS)"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" title="Войти">
                                     <color key="titleColor" name="YP Black (IOS)"/>
@@ -261,8 +266,7 @@
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" image="nav_back_button_black"/>
                                 <connections>
-                                    <action selector="didTapBackButton:" destination="7OC-tm-4EY" eventType="touchUpInside" id="RaE-yU-Pgy"/>
-                                    <action selector="didTapBackButton:" destination="Rcd-3Y-KxL" eventType="touchUpInside" id="gmV-Zm-Nak"/>
+                                    <action selector="didTapBackButton:" destination="7OC-tm-4EY" eventType="touchUpInside" id="I85-vb-1n8"/>
                                 </connections>
                             </button>
                             <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="19t-Eb-M3Z">
@@ -291,7 +295,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LdY-8D-ACe" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="708" y="-721"/>
+            <point key="canvasLocation" x="707.63358778625957" y="-721.12676056338034"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="BOd-Qt-w9f">

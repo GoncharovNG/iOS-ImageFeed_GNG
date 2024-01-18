@@ -20,29 +20,6 @@ final class ProfileService {
     private let semaphore = DispatchSemaphore(value: 0)
     private init() {}
     
-    func fetchProfile(_ token: String) {
-        self.fetchProfile(token) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let profile):
-                self.profile = profile
-                self.lock.unlock()
-                self.semaphore.signal()
-            case .failure(_ ):
-                self.lastToken = nil
-                self.lock.unlock()
-                self.semaphore.signal()
-            }
-        }
-    }
-    
-    func getProfile() -> Profile? {
-        if self.profile == nil {
-            self.semaphore.wait()
-        }
-        return self.profile
-    }
-    
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
         assert(Thread.isMainThread)
         if lastToken == token { return }
@@ -69,7 +46,7 @@ final class ProfileService {
         self.task = task
         task.resume()
     }
-    func peel() {
+    func clean() {
             profile = nil
         }
 }
@@ -77,7 +54,7 @@ final class ProfileService {
 extension ProfileService {
     func profileRequest(token: String) -> URLRequest {
         guard let url = URL(
-            string: "\(stackDefaultBaseURL)"
+            string: "\(DefaultBaseURL)"
             + "/me")
         else {
             fatalError("Failed to create URL")

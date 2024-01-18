@@ -1,12 +1,12 @@
 //
 //  WebViewPresenterSpy.swift
-//  WebViewPresenterSpy
+//  ImageFeedTests
 //
-//  Created by Никита Гончаров on 27.11.2023.
+//  Created by Никита Гончаров on 16.01.2024.
 //
 
 @testable import ImageFeed
-import Foundation
+import UIKit
 
 final class WebViewPresenterSpy: WebViewPresenterProtocol {
     
