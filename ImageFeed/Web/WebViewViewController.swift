@@ -85,9 +85,9 @@ final class WebViewViewController: UIViewController, WebViewViewControllerProtoc
         }
     }
     // MARK: - Public Methods
-    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        showError()
-    }
+//    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+//        showError()
+//    }
     // MARK: - Private Methods
     func setProgressValue(_ newValue: Float) {
         progressView.progress = newValue

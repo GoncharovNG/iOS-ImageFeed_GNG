@@ -11,46 +11,38 @@ import WebKit
 final class ProfileService {
     
     static let shared = ProfileService()
-    static let didChangeNotification = Notification.Name(rawValue: "ProfileProviderDidChange")
     private let urlSession = URLSession.shared
     private (set) var profile: Profile?
     private var task: URLSessionTask?
-    private var lastToken: String?
-    private let lock = NSLock()
-    private let semaphore = DispatchSemaphore(value: 0)
+
     private init() {}
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
         assert(Thread.isMainThread)
-        if lastToken == token { return }
-        lock.lock()
-        lastToken = token
-        
-        let url = URL(string: "https://api.unsplash.com/me")!
-        
-        var request = URLRequest(url: url)
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
-        let task = URLSession.shared.objectTask(for: request)  { [weak self] (result: Result<ProfileResult, Error>) in
-            guard let self = self else { return }
-            switch result {
-            case .success(let body):
-                let profile = Profile(callData: body)
-                self.profile = profile
-                completion(.success(profile))
-                self.task = nil
-            case .failure(let error):
-                completion(.failure(error))
+        if profile != nil { return }
+        task?.cancel()
+        let request = profileRequest(token: token)
+        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<ProfileResult, Error>) in
+                guard let self = self else { return }
+                switch result {
+                case .success(let body):
+                    let profile = Profile(callData: body)
+                    self.profile = profile
+                    completion(.success(profile))
+                    self.task = nil
+                case .failure(let error):
+                    completion(.failure(error))
+                    
+                }
             }
-        }
         self.task = task
         task.resume()
     }
+    
     func clean() {
             profile = nil
         }
 }
-
 extension ProfileService {
     func profileRequest(token: String) -> URLRequest {
         guard let url = URL(

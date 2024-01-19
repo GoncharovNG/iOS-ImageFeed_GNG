@@ -16,15 +16,9 @@ final class ImagesListService {
     private var task: URLSessionTask?
     private let oauth2TokenStorage = OAuth2TokenStorage.shared
     private let urlSession = URLSession.shared
-    private var isFetching = false
-    private var currentPage = 1
-    private let itemsPerPage = 10
-    private let dateFormatter: ISO8601DateFormatter = {
-        let dateFormatter = ISO8601DateFormatter()
-        return dateFormatter
-    }()
+    private let dateFormatter = ISO8601DateFormatter()
     
-    var nextPage: Int = 1
+    init(){}
     
     func fetchPhotosNextPage() {
         assert(Thread.isMainThread)
@@ -111,17 +105,12 @@ final class ImagesListService {
     }
 }
     
-    private func dateFromString(_ dateString: String) -> Date? {
-        let dateFormatter = ISO8601DateFormatter()
-        return dateFormatter.date(from: dateString)
-    }
-
 extension ImagesListService {
     func imageTokenRequest(_ token: String, page: String, perPage: String) -> URLRequest? {
         var request = URLRequest.makeHTTPRequest(
             path: "/photos?page=\(page)&&per_page=\(perPage)",
             httpMethod: "GET",
-            baseURL: URL(string: "\(stackDefaultBaseURL)")!)
+            baseURL: URL(string: "\(DefaultBaseURL)")!)
         request?.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
     }
@@ -130,7 +119,7 @@ extension ImagesListService {
         var request = URLRequest.makeHTTPRequest(
             path: "photos/\(photoId)/like",
             httpMethod: "POST",
-            baseURL: URL(string: "\(stackDefaultBaseURL)")!)
+            baseURL: URL(string: "\(DefaultBaseURL)")!)
         request?.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
     }
@@ -139,7 +128,7 @@ extension ImagesListService {
         var request = URLRequest.makeHTTPRequest(
             path: "photos/\(photoId)/like",
             httpMethod: "DELETE",
-            baseURL: URL(string: "\(stackDefaultBaseURL)")!)
+            baseURL: URL(string: "\(DefaultBaseURL)")!)
         request?.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
     }
@@ -150,4 +139,3 @@ extension ImagesListService {
         return item
     }
 }
-

@@ -1,8 +1,8 @@
 //
-//  ImageListViewpresenter.swift
+//  ImageListViewPresenter.swift
 //  ImageFeed
 //
-//  Created by Никита Гончаров on 27.11.2023.
+//  Created by Никита Гончаров on 17.01.2024.
 //
 
 import UIKit
@@ -28,7 +28,7 @@ final class ImageListViewPresenter: ImagesListViewPresenterProtocol {
             imagesListService.changeLike(photoId: photoId,
                                          isLike: isLike,
                                          { [weak self] result in
-                guard self != nil else { return }
+                guard let self = self else { return }
                 switch result{
                 case .success(_):
                     completion(.success(()))
@@ -52,5 +52,4 @@ final class ImageListViewPresenter: ImagesListViewPresenterProtocol {
     func fetchPhotosNextPage(){
         imagesListService.fetchPhotosNextPage()
     }
-    
 }

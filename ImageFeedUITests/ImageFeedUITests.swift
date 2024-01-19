@@ -49,7 +49,7 @@ final class ImageFeedUITest: XCTestCase {
         webView.buttons["Login"].tap()
         
         let tablesQuery = app.tables
-        let cell = tablesQuery.children(matching: .cell).element(boundBy: 0)
+        let cell = tablesQuery.descendants(matching: .cell).element(boundBy: 0)
         
         XCTAssertTrue(cell.waitForExistence(timeout: 5))
     }
@@ -79,7 +79,9 @@ final class ImageFeedUITest: XCTestCase {
         sleep(3)
         
         let image = app.scrollViews.images.element(boundBy: 0)
+        // Zoom in
         image.pinch(withScale: 3, velocity: 1)
+        // Zoom out
         image.pinch(withScale: 0.5, velocity: -1)
         
         let navBackButtonWhiteButton = app.buttons["nav_back_button_white"]

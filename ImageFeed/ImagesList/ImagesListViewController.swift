@@ -16,7 +16,7 @@ final class ImagesListViewController: UIViewController, ImagesListViewController
     
     @IBOutlet weak private var tableView: UITableView!
     private let ShowSingleImageSegueIdentifier = "ShowSingleImage"
-    private let photosName: [String] = Array(0..<20).map{ "\($0)" }
+    private var imagesListServiceObserver: NSObjectProtocol?
     private var alertPresenter: AlertPresenterProtocol?
     private let imagesListService = ImagesListService.shared
     var photos: [Photo] = []
@@ -141,7 +141,7 @@ final class ImagesListViewController: UIViewController, ImagesListViewController
                     case .success:
                         guard let newPhotos = self.presenter?.imagesListService.photos else {return}
                         self.photos = newPhotos
-                        cell.setIsLiked(isLiked: self.photos[indexPath.row].isLiked)
+                        cell.setIsLiked(self.photos[indexPath.row].isLiked)
                     case .failure:
                         self.showError()
                     }

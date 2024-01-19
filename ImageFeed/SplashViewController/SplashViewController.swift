@@ -59,7 +59,7 @@ class SplashViewController: UIViewController {
 // MARK: - AuthViewControllerDelegate
 
 extension SplashViewController: AuthViewControllerDelegate {
-    private func switchToAuthViewController() {
+    func switchToAuthViewController() {
         let storyboard = UIStoryboard(name: mainID, bundle: .main).instantiateViewController(identifier: authViewControllerID)
         guard let authViewController = storyboard as? AuthViewController else {
             assertionFailure("Failed to show Authentication Screen")
