@@ -6,56 +6,26 @@
 //
 
 import UIKit
-import Kingfisher
 
 final class SingleImageViewController: UIViewController {
-    var image: UIImage! {
-        didSet {
-            guard isViewLoaded else { return } // 1
-            imageView.image = image // 2
-            rescaleAndCenterImageInScrollView(image: image)
-        }
-    }
     
-    var fullImageUrl: String?
-    
-    // MARK: - IBOutlet
-
+    @IBOutlet private var imageView: UIImageView!
     @IBOutlet weak var scrollView: UIScrollView!
     
-    @IBOutlet weak var imageView: UIImageView!
-    // MARK: - IBAction
-    
-    @IBAction private func didTapBackButton(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
+    var fullImageURL: URL! {
+        didSet {
+            guard isViewLoaded else { return }
+            receiveImage()
+        }
     }
-    
-    @IBAction func didTapShareButton(_ sender: Any) {
-        let shareButton = UIActivityViewController(activityItems: [image!], applicationActivities: [])
-        present(shareButton, animated: true, completion: nil)
-    }
-    // MARK: - UIViewController
+    private var alertPresenter: AlertPresenterProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        if let imageUrl = fullImageUrl, let url = URL(string: imageUrl) {
-            UIBlockingProgressHUD.show()
-            imageView.kf.setImage(with: url) { [weak self] result in
-                UIBlockingProgressHUD.dismiss()
-                
-                guard let self = self else { return }
-                switch result {
-                case .success(let imageResult):
-                    self.image = imageResult.image
-                case .failure:
-                    self.showError()
-                }
-            }
-        }
-        
+        alertPresenter = AlertPresenter(delegate: self)
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
+        receiveImage()
     }
     
     private func rescaleAndCenterImageInScrollView(image: UIImage) {
@@ -74,41 +44,65 @@ final class SingleImageViewController: UIViewController {
         let y = (newContentSize.height - visibleRectSize.height) / 2
         scrollView.setContentOffset(CGPoint(x: x, y: y), animated: false)
     }
-
-    private func showError() {
-        let alertController = UIAlertController(title: "Error", message: "Что-то пошло не так. Попробовать ещё раз?", preferredStyle: .alert)
-        
-        let cancelAction = UIAlertAction(title: "Не надо", style: .cancel, handler: nil)
-        let retryAction = UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
-            self?.loadFullImage()
-        }
-        
-        alertController.addAction(cancelAction)
-        alertController.addAction(retryAction)
-        
-        present(alertController, animated: true, completion: nil)
-    }
     
-    private func loadFullImage() {
-        if let imageUrl = fullImageUrl, let url = URL(string: imageUrl) {
-            UIBlockingProgressHUD.show()
-            imageView.kf.setImage(with: url) { [weak self] result in
-                UIBlockingProgressHUD.dismiss()
-                
-                guard let self = self else { return }
-                switch result {
-                case .success(let imageResult):
-                    self.rescaleAndCenterImageInScrollView(image: imageResult.image)
-                case .failure:
-                    self.showError()
-                }
+    func receiveImage() {
+        UIBlockingProgressHUD.show()
+        imageView.kf.setImage(with: fullImageURL) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            
+            guard let self = self else { return }
+            switch result {
+            case .success(let imageResult):
+                self.rescaleAndCenterImageInScrollView(image: imageResult.image)
+            case .failure:
+                self.showError()
             }
         }
+    }
+    
+    @IBAction func didTapBackButton() {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    @IBAction func didTapShareButton(_ sender: UIButton) {
+        let share = UIActivityViewController(
+            activityItems: [imageView.image as Any],
+            applicationActivities: nil
+        )
+        present(share, animated: true, completion: nil)
     }
 }
 
 extension SingleImageViewController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-       return imageView
+        imageView
+    }
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        let halfWidth = (scrollView.bounds.size.width - imageView.frame.size
+               .width) / 2
+        let halfHeight = (scrollView.bounds.size.height - imageView.frame.size
+               .height) / 2
+        scrollView.contentInset = .init(top: halfHeight, left: halfWidth, bottom: 0, right: 0)
+    }
+}
+
+//MARK: - AlertPresenter
+extension SingleImageViewController {
+    private func showError() {
+        let alert = AlertModel(
+            title: "Что-то пошло не так(",
+            message: "Перезапустить загрузку?",
+            buttonText: "Ок",
+            completion: { [weak self] in
+                guard let self = self else { return }
+                UIBlockingProgressHUD.show()
+                receiveImage()
+            },
+            nextButtonText: "Нет",
+            nextCompletion: { [weak self] in
+                guard let self = self else { return }
+                self.dismiss(animated: true)
+            })
+        alertPresenter?.showError(for: alert)
     }
 }

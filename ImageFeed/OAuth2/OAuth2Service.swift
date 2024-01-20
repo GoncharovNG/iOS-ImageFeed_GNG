@@ -5,67 +5,62 @@
 //  Created by Никита Гончаров on 16.11.2023.
 //
 
-import Foundation
+import UIKit
 
 class OAuth2Service {
     
+    static let shared = OAuth2Service()
+    private var task: URLSessionTask?
     private var lastCode: String?
-    private var currentTask: URLSessionTask?
+    private let urlSession = URLSession.shared
     
-    func fetchAuthToken(
+    private (set) var authToken: String? {
+        get {
+            return OAuth2TokenStorage().token
+        }
+        set {
+            OAuth2TokenStorage().token = newValue
+        }
+    }
+    
+    func fetchOAuthToken(
         _ code: String,
         completion: @escaping (Result<String, Error>) -> Void
     ) {
         assert(Thread.isMainThread)
         if lastCode == code { return }
-        currentTask?.cancel()
+        task?.cancel()
         lastCode = code
         
-        let request = makeRequest(code)
-        let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+        guard let request = authTokenRequest(code: code) else { return }
+        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
             guard let self = self else { return }
-            DispatchQueue.main.async {
                 switch result {
-                case .success(let response):
-                    completion(.success(response.accessToken))
+                case .success(let body):
+                    let authToken = body.accessToken
+                    self.authToken = authToken
+                    completion(.success(authToken))
+                    self.task = nil
                 case .failure(let error):
                     completion(.failure(error))
-                    self.lastCode = nil
                 }
-                self.currentTask = nil
             }
+            self.task = task
+            task.resume()
         }
-        currentTask = task
-        task.resume()
     }
-    
-    private func makeRequest(_ code: String) -> URLRequest {
-        var urlComponents = URLComponents(string: "https://unsplash.com/oauth/token")!
-        urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: accessKey),
-            URLQueryItem(name: "client_secret", value: secretKey),
-            URLQueryItem(name: "redirect_uri", value: redirectURI),
-            URLQueryItem(name: "code", value: code),
-            URLQueryItem(name: "grant_type", value: "authorization_code")
-        ]
-        let url = urlComponents.url!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        
-        return request
-    }
-}
 
-struct OAuthTokenResponseBody: Decodable {
-    let accessToken: String
-    let tokenType: String
-    let scope: String
-    let createdAt: Int
-    
-    enum CodingKeys: String, CodingKey {
-        case accessToken = "access_token"
-        case tokenType = "token_type"
-        case scope
-        case createdAt = "created_at"
+    private extension OAuth2Service {
+        func authTokenRequest(code: String) -> URLRequest? {
+            URLRequest.makeHTTPRequest(
+                path: "/oauth/token"
+                + "?client_id=\(AccessKey)"
+                + "&&client_secret=\(SecretKey)"
+                + "&&redirect_uri=\(RedirectURI)"
+                + "&&code=\(code)"
+                + "&&grant_type=authorization_code",
+                httpMethod: "POST",
+                baseURL: URL(string: "https://unsplash.com")!
+            )
+        }
     }
-}
